@@ -28,44 +28,44 @@ void printMatrix(int matrix[9][9], int size);
 void printText(const char *label, const char *text, int length);
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
+    if (argc != 3) { //Forcing the argument count to be only 3
         fprintf(stderr, "Usage: %s keyFile.txt plaintextFile.txt\n", argv[0]);
         return 1;
     }
 
     printf("\n");
 
-    FILE *keyFile = fopen(argv[1], "r");
+    FILE *keyFile = fopen(argv[1], "r");  //Reads the file containing the key matrix
     if (!keyFile) {
         perror("Error opening key file");
         return 1;
     }
 
-    FILE *plainFile = fopen(argv[2], "r");
+    FILE *plainFile = fopen(argv[2], "r"); //Reads the plaintext file
     if (!plainFile) {
         perror("Error opening plaintext file");
         fclose(keyFile);
         return 1;
     }
 
-    int keyMatrix[9][9];
+    int keyMatrix[9][9]; //Initializing the key matrix
     int keySize = readKeyMatrix(keyFile, keyMatrix);
 
-    char plaintext[10000];
+    char plaintext[10000]; //Max plaintext letters in the file
     int ptLength = readPlaintext(plainFile, plaintext);
     padPlaintext(plaintext, &ptLength, keySize);
 
     char ciphertext[10000];
     encryptText(plaintext, ptLength, keyMatrix, keySize, ciphertext);
 
-    printf("Key matrix:\n");
+    printf("Key matrix:\n"); //Formatting the output
     printMatrix(keyMatrix, keySize);
     printf("\n");
     printText("Plaintext", plaintext, ptLength);
     printf("\n");
     printText("Ciphertext", ciphertext, ptLength);
 
-    fclose(keyFile);
+    fclose(keyFile); //Closing files after use
     fclose(plainFile);
 
     return 0;
@@ -73,21 +73,21 @@ int main(int argc, char *argv[]) {
 
 int readKeyMatrix(FILE *fp, int matrix[9][9]) {
     int size;
-    fscanf(fp, "%d", &size);
+    fscanf(fp, "%d", &size); //Scans the key file
     if (size < 2 || size > 9) {
         fprintf(stderr, "Invalid key matrix size.\n");
         exit(1);
     }
     for (int i = 0; i < size; i++)
         for (int j = 0; j < size; j++)
-            fscanf(fp, "%d", &matrix[i][j]);
+            fscanf(fp, "%d", &matrix[i][j]); //Creates the matrix
     return size;
 }
 
 int readPlaintext(FILE *fp, char *buffer) {
     int len = 0;
     char ch;
-    while ((ch = fgetc(fp)) != EOF) {
+    while ((ch = fgetc(fp)) != EOF) { //Reads the plaintext
         if (isalpha(ch)) {
             buffer[len++] = tolower(ch);
         }
@@ -97,7 +97,7 @@ int readPlaintext(FILE *fp, char *buffer) {
 }
 
 void padPlaintext(char *text, int *length, int blockSize) {
-    while (*length % blockSize != 0) {
+    while (*length % blockSize != 0) { //Pads the block with an x to fit the size
         text[(*length)++] = 'x';
     }
     text[*length] = '\0';
@@ -105,7 +105,7 @@ void padPlaintext(char *text, int *length, int blockSize) {
 
 void encryptText(const char *plaintext, int length, int matrix[9][9], int size, char *ciphertext) {
     int index = 0;
-    for (int i = 0; i < length; i += size) {
+    for (int i = 0; i < length; i += size) { //Using the hill cipher algorithm to encrypt the plaintext
         for (int row = 0; row < size; row++) {
             int sum = 0;
             for (int col = 0; col < size; col++) {
@@ -118,7 +118,7 @@ void encryptText(const char *plaintext, int length, int matrix[9][9], int size, 
 }
 
 void printMatrix(int matrix[9][9], int size) {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) { //Prints the matrix
         for (int j = 0; j < size; j++) {
             printf("%4d", matrix[i][j]);
         }
@@ -127,7 +127,7 @@ void printMatrix(int matrix[9][9], int size) {
 }
 
 void printText(const char *label, const char *text, int length) {
-    if (label != NULL) printf("%s:\n", label);
+    if (label != NULL) printf("%s:\n", label); //Prints the ciphertext
     for (int i = 0; i < length; i++) {
         printf("%c", text[i]);
         if ((i + 1) % 80 == 0) printf("\n");
